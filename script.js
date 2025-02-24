@@ -18,3 +18,43 @@ fetch("attendance-geodata.geojson")
     console.error(error);
 })
  
+//add vector appearance (point)
+const bishoprics = [
+    { name: "Felix", lat: 37.299552, lon: -3.137125, attended: true },
+];
+
+bishoprics.forEach((bishopric) => {
+    L.circleMarker([bishopric.lat, bishopric.lon], {
+        color: bishopric.attended ? "green" : "red", // Green if attended, red if not
+        fillColor: bishopric.attended ? "green" : "red",
+        fillOpacity: 0.7,
+        radius: bishopric.attended ? 8 : 4, // Larger for attended
+    })
+    .bindTooltip(bishopric.name, { permanent: false, direction: "top" }) // Info box on hover
+    .addTo(map);
+});
+
+//add popups
+const infoBox = document.getElementById("info-box");
+
+bishoprics.forEach((bishopric) => {
+    const marker = L.circleMarker([bishopric.lat, bishopric.lon], {
+        color: bishopric.attended ? "green" : "red",
+        fillColor: bishopric.attended ? "green" : "red",
+        fillOpacity: 0.7,
+        radius: bishopric.attended ? 8 : 4,
+    }).addTo(map);
+
+    // Show info on hover
+    marker.on("mouseover", function () {
+        infoBox.style.display = "block";
+        infoBox.innerHTML = `<b>${bishopric.name}</b><br>Attended: ${bishopric.attended ? "Yes" : "No"}`;
+    });
+
+    // Hide info when the mouse leaves
+    marker.on("mouseout", function () {
+        infoBox.style.display = "none";
+    });
+});
+
+//add legend

@@ -34,7 +34,45 @@ fetch("attendance-geodata.geojson")
                     Notes: ${feature.properties.Notes || "None"}`;
                 layer.bindPopup(popupContent);
         }}).addTo(map);
-    })
-.catch(error => {
-    console.error(error);
-})
+
+        //set starting council to Elivra 306
+        var selectedCouncil = 'Elvira 306';
+
+        //declare custom control
+        var councilSelectorMenu = L.control.custom({
+        position: 'topright',
+        content: '<div class="custom-control">' +
+        '<h1>Select Council</h1>' +
+        '<br>'+
+        '<select onchange="handleDropdownChange(this)">' +
+        '<option value="Elvira 306">Elvira 306</option>' +  
+        '<option value="Zaragoza 380">Zaragoza 380</option>' +
+        '<option value="Toledo 400">Toledo 400</option>' +
+        '<option value="Tarragona 516">Tarragona 516</option>' +
+        '<option value="Giron 517">Giron 517</option>' +
+        '<option value="Toledo 527">Toledo 527</option>' +
+        '<option value="Barcelona 540">Barcelona 540</option>' +
+        '<option value="Lerida 546">Lerida 546</option>' +
+        '<option value="Valencia 546">Valencia 546</option>' +
+        '<option value="Braga 561">Braga 561</option>' +
+        '<option value="Braga 572">Braga 572</option>' +
+        '<option value="Toledo 589">Toledo 589</option>' +
+        '</select>' +
+        '</div>',
+        classes: 'custom-control'
+        });
+
+        // Add the custom control to the map
+        councilSelectorMenu.addTo(map);
+
+        function handleDropdownChange(select) {
+            //reset selectedCouncil
+            selectedCouncil = select.value;    
+        }
+            })    
+        .catch(error => {
+            console.error(error);})
+
+        //HANDLEDROPDOWNCHANGE
+        //define the handleDropdownChange function
+        

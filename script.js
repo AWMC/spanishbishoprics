@@ -43,6 +43,9 @@ function renderGeoJSON() {
                 //add popups
                 onEachFeature: function(feature, layer) {  
                     //customize popup content
+                    //setup content based on selected council--use a switch statement
+
+                    //set popupContent
                     var popupContent = 
                         `<b>${feature.properties.See}</b><br>
                         Province: ${feature.properties.Province || "Unknown"}<br>

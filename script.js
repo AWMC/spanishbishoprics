@@ -22,15 +22,15 @@ function renderGeoJSON() {
                     var attendanceProperty = selectedCouncil + " Attendance";
                     var attendance = feature.properties[attendanceProperty];
             
-                    if (attendance == true) { 
-                        return L.circleMarker(latlng, {
-                            radius : 7,           // set size adjustment
-                            color : "purple",     // set outline color
-                            fillColor : "purple", // set fill color
-                            fillOpacity : 0.5,    // set transparency
-                            weight : 1            // set outline thickness   
+                    if (attendance === true) { 
+                        var diamondIcon = L.divIcon({
+                            className: "custom-diamond-icon",
+                            html: `<i class="fas fa-diamond" style="color: purple; font-size: 20px;"></i>`,
+                            iconSize: [20, 20], // Size of the icon
+                            iconAnchor: [10, 10] // Anchor point (center of the diamond)   
                         });
-                    } else if (attendance == false) {
+                        return L.marker(latlng, { icon: diamondIcon });
+                    } else if (attendance === false) {
                         return L.circleMarker(latlng, {
                             radius : 5,         // set size adjustment
                             color : "red",      // set outline color
@@ -42,15 +42,57 @@ function renderGeoJSON() {
                 }, 
                 // add popups
                 onEachFeature: function(feature, layer) {  
-                    // customize popup content
-                    // setup content based on selected council--use a switch statement
-
+                    // set bishop attended based on selected council
+                    var bishopAttended = feature.properties.selectedCouncil;
+                    
+                    switch (selectedCouncil) {
+                        case 'Elvira_306':
+                            bishopAttended = feature.properties.Elvira_306 || "None";
+                            break;
+                        case 'Zaragoza_380':
+                            bishopAttended = feature.properties.Zaragoza_380 || "None";
+                            break;
+                        case 'Toledo_400':
+                            bishopAttended = feature.properties.Toledo_400 || "None";
+                            break;
+                        case 'Tarragona_516':
+                            bishopAttended = feature.properties.Tarragona_516 || "None";
+                            break;
+                        case 'Giron_517':
+                            bishopAttended = feature.properties.Giron_517 || "None";
+                            break;
+                        case 'Toledo_527':
+                            bishopAttended = feature.properties.Toledo_527 || "None";
+                            break;
+                        case 'Barcelona_540':
+                            bishopAttended = feature.properties.Barcelona_540 || "None";
+                            break;
+                        case 'Lérida_546':
+                            bishopAttended = feature.properties.Lérida_546 || "None";
+                            break;
+                        case 'Valencia_546':
+                            bishopAttended = feature.properties.Valencia_546 || "None";
+                            break;
+                        case 'Braga_561':
+                            bishopAttended = feature.properties.Braga_561 || "None";
+                            break;
+                        case 'Braga_572':
+                            bishopAttended = feature.properties.Braga_572 || "None";
+                            break;
+                        case 'Toledo_589':
+                            bishopAttended = feature.properties.Toledo_589 || "None";
+                            break;
+                        default:
+                            bishopAttended = "None";
+                            break;
+                    }
+            
                     // set popupContent
                     var popupContent = 
                         `<b>${feature.properties.See || "Unknown Location"}</b><br>
                         Modern City: ${feature.properties.Modern_City || "Unknown"}<br>
                         Province: ${feature.properties.Province || "Unknown"}<br>
-                        Bishop Attended: ${feature.properties.Elvira_306 || "None"}<br>
+                        Bishop Attended: ${bishopAttended || "None"}<br>
                         Earliest Attested Bishop: ${feature.properties.Earliest_Attested_Bishop || "Unknown"}<br>
                         Notes: ${feature.properties.Notes || "None"}`;
                     layer.bindPopup(popupContent);

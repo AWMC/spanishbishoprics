@@ -35,7 +35,7 @@ function renderGeoJSON() {
                             radius : 5,         // set size adjustment
                             color : "red",      // set outline color
                             fillColor : "red",  // set fill color
-                            fillOpacity : 0.5,  // set transparency
+                            fillOpacity : 0.5,  // set transparency hello
                             weight : 1          // set outline thickness
                         });
                     }

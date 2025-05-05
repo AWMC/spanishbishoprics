@@ -29,6 +29,35 @@
         #map{height:900px;}
     </style>
     <script src="script.js"></script>
+    <div class="select-container">
+        <label for="council-select">Select Council:</label>
+        <select id="council-select">
+            <option value="Elvira_306">Elvira 306</option>
+            <option value="Zaragoza_380">Zaragoza 380</option>
+            <option value="Toledo_400">Toledo 400</option>
+        <style>
+            .select-container {
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                background: white;
+                padding: 10px;
+                border: 1px solid black;
+                border-radius: 5px;
+                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            }
+            
+            .select-container label {
+                margin-right: 5px;
+            }
+            
+            .select-container select {
+                padding: 5px;
+            }
+        </style>
+           
+        </select>
+    </div>
 </body>
 </html>
 

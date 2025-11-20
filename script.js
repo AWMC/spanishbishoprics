@@ -43,8 +43,8 @@ function renderGeoJSON() {
                 // add popups
                 onEachFeature: function(feature, layer) {  
                     // set bishop attended based on selected council
-                    var bishopAttended = feature.properties.selectedCouncil;
-                    
+                    var bishopAttended = feature.properties[selectedCouncil];
+                    bishopAttended = bishopAttended[selectedCouncil]
                     switch (selectedCouncil) {
                         case 'Elvira_306':
                             bishopAttended = feature.properties.Elvira_306 || "None";
@@ -85,8 +85,9 @@ function renderGeoJSON() {
                         default:
                             bishopAttended = "None";
                             break;
+                    
                     }
-            
+
                     // set popupContent
                     var popupContent = 
                         `<b>${feature.properties.See || "Unknown Location"}</b><br>
@@ -147,3 +148,27 @@ document.getElementById('councilSelector').addEventListener('change', function(e
    clearLayers(); 
    renderGeoJSON();
 });
+
+// description content
+document.getElementById('info-box').innerHTML = 
+    `<h2>Map Description</h2>
+    <p>This map visualizes the attendance of bishops at various church councils in medieval Spain. 
+    Purple diamond icons indicate bishops who attended the selected council, while red circles represent those who did not attend. 
+    Use the dropdown menu in the top-right corner to select different councils and explore the attendance patterns of bishops across different regions.</p>`;
+
+
+
+
+// description toggle 
+/*
+var descriptionVisible = false;
+document.getElementById('descriptionToggle').addEventListener('click', function() {
+    var descriptionDiv = document.getElementById('description');
+    if (descriptionVisible) {
+        descriptionDiv.style.display = 'none';
+        descriptionVisible = false;
+    }}); else {
+        descriptionDiv.style.display = 'block';
+        descriptionVisible = true;
+    }
+*/

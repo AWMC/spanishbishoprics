@@ -1,9 +1,11 @@
+/* create custom diamon icon style */
 .custom-diamond-icon {
     background: none;
     border: none;
 }
 
-.select-container {
+/* Style for the council selector dropdown container */
+.council-selector {
     background-color: white; 
     padding: 10px;           
     border: 1px solid #ccc;  
@@ -11,3 +13,28 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     display: inline-block;   
 }
+
+/* Create page title style */
+#page-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 1.5em;
+    font-weight: bold;
+    z-index: 5000;    /* Make sure this is above the map and info-box */
+}
+
+/* Ensure the info box appears above other map elements */
+#info-box {
+    position: absolute;
+    background: white;
+    padding: 5px;
+    border: 1px solid black;
+    z-index: 5000;  /* Add or increase this line */
+    display: block;   /* Set to 'block' when wanted visible */
+}
+

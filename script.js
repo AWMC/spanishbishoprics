@@ -30,14 +30,25 @@ function renderGeoJSON() {
                             iconAnchor: [10, 10] // Anchor point (center of the diamond)   
                         });
                         return L.marker(latlng, { icon: diamondIcon });
+
                     } else if (attendance === false) {
                         return L.circleMarker(latlng, {
                             radius : 5,         // set size adjustment
-                            color : "red",      // set outline color
+                            color : "black",      // set outline color
                             fillColor : "red",  // set fill color
                             fillOpacity : 0.5,  // set transparency
                             weight : 1          // set outline thickness
                         });
+                
+                    } else if (attendance === null) {
+                        return L.circleMarker(latlng, {
+                            radius : 5,         // set size adjustment
+                            color: "black",    // set outline color
+                            fillColor: "orange",// set fill color
+                            fillOpacity : 0.5,  // set transparency
+                            weight : 1          // set outline thickness
+                // MAKE THIS WORK!    
+                        })
                     }
                 }, 
                 // add popups
@@ -149,26 +160,27 @@ document.getElementById('councilSelector').addEventListener('change', function(e
    renderGeoJSON();
 });
 
-// description content
-document.getElementById('info-box').innerHTML = 
-    `<h2>Map Description</h2>
-    <p>This map visualizes the attendance of bishops at various church councils in medieval Spain. 
-    Purple diamond icons indicate bishops who attended the selected council, while red circles represent those who did not attend. 
-    Use the dropdown menu in the top-right corner to select different councils and explore the attendance patterns of bishops across different regions.</p>`;
+// info box control
+var descriptionMenu = L.control({position: 'topleft'});
+descriptionMenu.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'custom-control');
+    div.innerHTML = '<h1>Map Information</h1>' +
+        '<select id="description">' +
+        '<p>This interactive tool visualizes episcopal attendance at twelve Church Councils (deliberative meetings of bishops) in Roman and post-Roman Hispania. The Councils span nearly three centuries, from the Council of Elvira (306 CE) to the Third Council of Toledo (589 CE). Based on research from the dissertation "Wars and Rumors of War: Archaeology, Violence, and the End of Roman Spain," this map allows users to explore the geographic distribution of participating bishoprics for each council, revealing significant patterns in ecclesiastical organization and regional connectivity during the transition from late antiquity to the early medieval period.</p>' +
+        '<li><strong>Purple Diamond:</strong> Bishop attended the council.</li>' +
+        '<li><strong>Red Circle:</strong> Bishop did not attend the council.</li>' +
+        '<li><strong>Orange Circle:</strong> Attendance data is unknown.</li>' +
+        '</div>';
+        '/<select>'
+    div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+    return div;
+};
+descriptionMenu.addTo(map);
 
-
-
-
-// description toggle 
-/*
-var descriptionVisible = false;
-document.getElementById('descriptionToggle').addEventListener('click', function() {
-    var descriptionDiv = document.getElementById('description');
-    if (descriptionVisible) {
-        descriptionDiv.style.display = 'none';
-        descriptionVisible = false;
-    }}); else {
-        descriptionDiv.style.display = 'block';
-        descriptionVisible = true;
-    }
-*/
+// handle dropdown change
+document.getElementById('descriptionToggle').addEventListener('change', function(e) {
+    document.getElementById('description')
+   
+    clearLayers();
+    renderGeoJSON();
+});

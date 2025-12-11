@@ -1,7 +1,7 @@
 /* create custom diamon icon style */
 .custom-diamond-icon {
     background: none;
-    border: none;
+    border: black;
     opacity: 4;
 }
 
@@ -19,14 +19,18 @@
     z-index: 5000;    /* Make sure this is above the map and info-box */
 }
 
-/* Ensure the info box appears above other map elements */
-#info-box {
+#description_toggle {
     position: absolute;
-    background: white;
-    padding: 5px;
-    border: 1px solid black;
-    z-index: 5000;  /* Add or increase this line */
-    display: block;   /* Set to 'block' when wanted visible */
+    top: 11px;
+    left: 15%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: bold;
+    z-index: 5000;    
+    cursor: pointer;  
 }
 
 /* Style for the council selector dropdown container */
@@ -38,3 +42,4 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     display: inline-block;   
 }
+

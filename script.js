@@ -1,4 +1,4 @@
-// LAUNCHING THE MAP
+// LAUNCHING THE MAP //
 // declare the map
 var map = L.map('map').setView([40, -5], 6);
  
@@ -8,7 +8,7 @@ L.tileLayer('https://cawm.lib.uiowa.edu/tiles/{z}/{x}/{y}.png', {}).addTo(map);
 // set starting council to Elvira 306
 var selectedCouncil = 'Elvira_306';
 
-// function to fetch and render GeoJSON data
+// FUNCTION TO FETCH AND RENDER GEOJSON DATA //
 function renderGeoJSON() {
     fetch("attendance-geodata.geojson")
         .then(response => {
@@ -17,41 +17,46 @@ function renderGeoJSON() {
         })
         .then(raw_data => {
             L.geoJSON(raw_data, {
-                // add vector appearance (consider disability access)
+                // ADD ATTENDANCE VECTOR STYLES //
                 pointToLayer: function(feature, latlng) {
                     var attendanceProperty = selectedCouncil + " Attendance";
                     var attendance = feature.properties[attendanceProperty];
-            
-                    if (attendance === true) { 
+
+                // normalize attendance values
+                    // marks bishops whose attendance is true
+                    if (attendance === true || attendance === "true") {
                         var diamondIcon = L.divIcon({
                             className: "custom-diamond-icon",
-                            html: `<i class="fas fa-diamond" style="color: purple; font-size: 20px;"></i>`,
-                            iconSize: [20, 20], // Size of the icon
-                            iconAnchor: [10, 10] // Anchor point (center of the diamond)   
+                            html: '<i class="fas fa-diamond" style="color: purple; font-size: 16px;"></i>',
+                            iconSize: [20, 20],
+                            iconAnchor: [10, 10]
                         });
                         return L.marker(latlng, { icon: diamondIcon });
-
-                    } else if (attendance === false) {
+                    
+                    // marks bishops whose attendance is false
+                    } else if (attendance === false || attendance === "false") {
                         return L.circleMarker(latlng, {
-                            radius : 5,         // set size adjustment
-                            color : "black",      // set outline color
-                            fillColor : "red",  // set fill color
-                            fillOpacity : 0.5,  // set transparency
-                            weight : 1          // set outline thickness
+                            radius: 5,
+                            color: "black",
+                            fillColor: "red",
+                            fillOpacity: 0.5,
+                            weight: 1
                         });
-                
-                    } else if (attendance === null) {
+
+                    // marks bishops with any known Iberian Church attendance as unknown if attendance is not explicitly true/false   
+                    /* THIS DOES NOT WORK */ 
+                    } else if (attendance === "-") {
                         return L.circleMarker(latlng, {
-                            radius : 5,         // set size adjustment
-                            color: "black",    // set outline color
-                            fillColor: "orange",// set fill color
-                            fillOpacity : 0.5,  // set transparency
-                            weight : 1          // set outline thickness
-                // MAKE THIS WORK!    
-                        })
+                            radius: 5,
+                            color: "black",
+                            fillColor: "orange",
+                            fillOpacity: 0.5,
+                            weight: 1
+                        });
                     }
                 }, 
-                // add popups
+
+                // ADD POPUP CONTENT //
                 onEachFeature: function(feature, layer) {  
                     // set bishop attended based on selected council
                     var bishopAttended = feature.properties[selectedCouncil];
@@ -96,10 +101,9 @@ function renderGeoJSON() {
                         default:
                             bishopAttended = "None";
                             break;
-                    
                     }
 
-                    // set popupContent
+                    // set popupContent features
                     var popupContent = 
                         `<b>${feature.properties.See || "Unknown Location"}</b><br>
                         Modern City: ${feature.properties.Modern_City || "Unknown"}<br>
@@ -119,7 +123,7 @@ function renderGeoJSON() {
 // fetch and render
 renderGeoJSON();
 
-// function to clear layers
+// FUNCTION TO CLEAR EXISTING LAYERS //
 function clearLayers() {
     map.eachLayer(function (layer) {
         if (layer instanceof L.GeoJSON) {
@@ -128,7 +132,7 @@ function clearLayers() {
     });
 };
 
-// declare custom control
+// COUNCIL SELECTION CONTROL //
 var councilSelectorMenu = L.control({position: 'topright'});
 councilSelectorMenu.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'custom-control');
@@ -152,7 +156,7 @@ councilSelectorMenu.onAdd = function (map) {
 };
 councilSelectorMenu.addTo(map);
 
-// handle dropdown change
+// HANDLE DROPDOWN CHANGE EVENT //
 document.getElementById('councilSelector').addEventListener('change', function(e) {
     selectedCouncil = e.target.value;
 
@@ -160,27 +164,32 @@ document.getElementById('councilSelector').addEventListener('change', function(e
    renderGeoJSON();
 });
 
-// info box control
+// DESCRIPTION PANEL CONTROL //
 var descriptionMenu = L.control({position: 'topleft'});
+var descriptionVisible = false;
+
+// handle description toggle click
+document.getElementById('description_toggle').addEventListener('click', function(e) {
+    var panel = document.getElementById('description-panel');
+    descriptionVisible = !descriptionVisible;
+    panel.style.display = descriptionVisible ? 'block' : 'none';
+});
+
+// add description panel to map
 descriptionMenu.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'custom-control');
+    div.id = 'description-panel';
     div.innerHTML = '<h1>Map Information</h1>' +
-        '<select id="description">' +
         '<p>This interactive tool visualizes episcopal attendance at twelve Church Councils (deliberative meetings of bishops) in Roman and post-Roman Hispania. The Councils span nearly three centuries, from the Council of Elvira (306 CE) to the Third Council of Toledo (589 CE). Based on research from the dissertation "Wars and Rumors of War: Archaeology, Violence, and the End of Roman Spain," this map allows users to explore the geographic distribution of participating bishoprics for each council, revealing significant patterns in ecclesiastical organization and regional connectivity during the transition from late antiquity to the early medieval period.</p>' +
+        '<ul>' +
         '<li><strong>Purple Diamond:</strong> Bishop attended the council.</li>' +
         '<li><strong>Red Circle:</strong> Bishop did not attend the council.</li>' +
         '<li><strong>Orange Circle:</strong> Attendance data is unknown.</li>' +
-        '</div>';
-        '/<select>'
-    div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
+        '</ul>';
+    div.style.display = 'none';
+    div.onmousedown = div.ondblclick = L.DomEvent.stopPropagation;
     return div;
 };
-
-// handle dropdown change
-document.getElementById('description').addEventListener('click', function(e) {
-    descriptionMenu = e.target.value;
-   
-    clearLayers();
-    renderGeoJSON();
-});
 descriptionMenu.addTo(map);
+
+

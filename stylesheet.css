@@ -2,16 +2,7 @@
 .custom-diamond-icon {
     background: none;
     border: none;
-}
-
-/* Style for the council selector dropdown container */
-.council-selector {
-    background-color: white; 
-    padding: 10px;           
-    border: 1px solid #ccc;  
-    border-radius: 4px;      
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-    display: inline-block;   
+    opacity: 4;
 }
 
 /* Create page title style */
@@ -38,3 +29,12 @@
     display: block;   /* Set to 'block' when wanted visible */
 }
 
+/* Style for the council selector dropdown container */
+.councilSelector {
+    background-color: white; 
+    padding: 10px;           
+    border: 1px solid #ccc;  
+    border-radius: 4px;      
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+    display: inline-block;   
+}

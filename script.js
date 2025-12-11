@@ -175,12 +175,12 @@ descriptionMenu.onAdd = function (map) {
     div.firstChild.onmousedown = div.firstChild.ondblclick = L.DomEvent.stopPropagation;
     return div;
 };
-descriptionMenu.addTo(map);
 
 // handle dropdown change
-document.getElementById('descriptionToggle').addEventListener('change', function(e) {
-    document.getElementById('description')
+document.getElementById('description').addEventListener('click', function(e) {
+    descriptionMenu = e.target.value;
    
     clearLayers();
     renderGeoJSON();
 });
+descriptionMenu.addTo(map);

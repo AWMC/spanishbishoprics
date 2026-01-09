@@ -1,9 +1,40 @@
+/* create custom diamon icon style */
 .custom-diamond-icon {
     background: none;
-    border: none;
+    border: black;
+    opacity: 4;
 }
 
-.select-container {
+/* Create page title style */
+#page-title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 1.5em;
+    font-weight: bold;
+    z-index: 5000;    /* Make sure this is above the map and info-box */
+}
+
+#description_toggle {
+    position: absolute;
+    top: 11px;
+    left: 15%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: bold;
+    z-index: 5000;    
+    cursor: pointer;  
+}
+
+/* Style for the council selector dropdown container */
+.councilSelector {
     background-color: white; 
     padding: 10px;           
     border: 1px solid #ccc;  
@@ -11,3 +42,4 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
     display: inline-block;   
 }
+

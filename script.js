@@ -191,9 +191,13 @@ function updateAttendanceStatsBox() {
     var totalBishops = numBishopsAttended + numBishopsNotAttended;
     var attendancePercent = totalBishops > 0 ? Math.round((numBishopsAttended / totalBishops) * 100) : 0;
     
+    // indicator for expand/collapse
+    var indicatorText = (statsBox && statsBox.classList.contains('collapsed')) ? '[+]' : '[−]';
+
+    // update stats box content
     statsBox.innerHTML = `
         <h3>Record of Attendance: ${councilDisplay}</h3>
-        <span class="toggle-indicator">[−]</span>
+        <span class="toggle-indicator">${indicatorText}</span>
         <div class="stats-content">
             <div class="stat-row">
                 <span class="stat-label">Bishops Attended:</span>
@@ -211,9 +215,12 @@ function updateAttendanceStatsBox() {
                 <span class="stat-label">Attendance Rate:</span>
                 <span class="stat-value">${attendancePercent}%</span>
             </div>
-        </div>
-    `;
+        </div>`;
 }
+
+// stats box starts collapsed on render
+var statsBox = document.getElementById('attendance-stats');
+if (statsBox) statsBox.classList.add('collapsed');
 
 // click handler to toggle expand/collapse on stats box
 document.addEventListener('click', function(e) {
@@ -244,30 +251,98 @@ document.getElementById('description_toggle').addEventListener('click', function
 descriptionMenu.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'custom-control');
     div.id = 'description-panel';
-    div.innerHTML = '<h1>Map Information <span class="minimize-btn">[−]</span></h1>' +
-        '<div class="description-content">' +
-        '<p>This interactive tool visualizes episcopal attendance at twelve Church Councils (deliberative meetings of bishops) in Roman and post-Roman Hispania. The Councils span nearly three centuries, from the Council of Elvira (306 CE) to the Third Council of Toledo (589 CE). Based on research from the dissertation "Wars and Rumors of War: Archaeology, Violence, and the End of Roman Spain," this map allows users to explore the geographic distribution of participating bishoprics for each council, revealing significant patterns in ecclesiastical organization and regional connectivity during the transition from late antiquity to the early medieval period.</p>' +
-        '<h3>How to Use the Map</h3>' +
-        '<p>Select a council from the available list to populate the map with markers indicating the sees (episcopal seats) from which bishops are known to have attended. Each marker represents a bishopric whose representative participated in the selected council.</p>' +
-        '<ul>' +
-        '<li><strong>Purple Diamond:</strong> Bishop attended the selected council.</li>' +
-        '<li><strong>Orange Circle:</strong> Bishops known to have attended any Iberian council during this period (contextual reference points).</li>' +
-        '</ul>' +
-        '</div>';
+
+    // define collapsible description content
+    var sections = [
+        {
+            title: 'Overview',
+            html: '<p>This interactive tool visualizes episcopal attendance at twelve Church Councils (deliberative meetings of bishops) in Roman and post-Roman Hispania. The Councils span nearly three centuries, from the Council of Elvira (306 CE) to the Third Council of Toledo (589 CE). Based on research from the dissertation "Wars and Rumors of War: Archaeology, Violence, and the End of Roman Spain," this map allows users to explore the geographic distribution of participating bishoprics for each council, revealing significant patterns in ecclesiastical organization and regional connectivity during the transition from late antiquity to the early medieval period.</p>'
+        },
+        {
+            title: 'How to Use',
+            html: '<p>Select a council from the available list to populate the map with markers indicating the sees (episcopal seats) from which bishops are known to have attended. Each marker represents a bishopric whose representative participated in the selected council.</p>'
+        },
+        {
+            title: 'Legend',
+            html: '<ul>' +
+                '<li><strong>Purple Diamond:</strong> Bishop attended the selected council.</li>' +
+                '<li><strong>Orange Circle:</strong> Bishops known to have attended any Iberian council during this period (contextual reference points).</li>' +
+                '</ul>'
+        },
+        {
+            title: 'Data Limitations',
+            html: '<p>For some historically significant councils, complete subscription lists (official records of attendees with their sees) do not survive. Where possible, likely attendance has been reconstructed based on other historical evidence, but users should be aware that some councils may show incomplete or partially reconstructed data. Not all surviving subscription lists include the specific sees from which bishops traveled, complicating efforts to map attendance comprehensively. We therefore include a marker on the side showing in purple the number of bishops of unknown sees that attended the Council, as well as, in red, the number of conspicuous absences or bishops known to have attended but who did not sign the subscription list (e.g., at the First Council of Toledo, seven bishops were present but condemned for heresy). </p>'
+        },
+        {
+            title: 'Key Findings',
+            html: '<p>The data reveals a striking chronological pattern in council attendance:</p>'
+        },
+        {
+            title: 'Sources',
+            html: '<p>The episcopal attendance data derives primarily from:</p>' +
+                '<h3>Primary Source Collections:</h3>' +
+                '<ul>' +
+                '<li>Martínez Díez, Gonzalo, and Félix Rodríguez. La colección canónica Hispana. 6 vols. Monumenta Hispaniae Sacra. Madrid, 1966-2002.</li>' +
+                '<li>Vives, José. Concilios visigóticos e hispano-romanos. Madrid: Consejo Superior de Investigaciones Científicas, 1963</li>' +
+                '</ul>' +
+                '<h3>Secondary Analysis:</h3>' +
+                '<ul>' +
+                '<li>Orlandis, José, and Domingo Ramos-Lissón. Historia de los concilios de la España romana y visigoda. Pamplona: Universidad de Navarra, 1986.</li>' +
+                '</ul>'
+
+        }
+    ];
+
+    // build sections and append to div
+    sections.forEach(function(s, idx) {
+        var section = document.createElement('section');
+        section.className = 'desc-section';
+        section.dataset.index = idx;
+
+        var header = document.createElement('h1');
+        header.className = 'desc-header';
+        header.innerHTML = s.title + ' <span class="minimize-btn">[+]</span>'; // start collapsed indicator
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        section.appendChild(header);
+
+        var content = document.createElement('div');
+        content.className = 'description-content';
+        content.innerHTML = s.html;
+        content.style.display = 'none'; // starts collapsed
+        content.style.marginTop = '10px';
+        content.style.marginBottom = '10px';
+        section.appendChild(content);
+
+        div.appendChild(section);
+    });
+
+    // start hidden
     div.style.display = 'none';
-    div.onmousedown = div.ondblclick = L.DomEvent.stopPropagation;
+
+    // prevent map interactions when interacting with the panel
+    L.DomEvent.disableClickPropagation(div);
+
+    // toggle individual sectoiuns when header or minimize-btn clicked
+    div.addEventListener('click', function(e) {
+        var header = e.target.closest('.desc-header');
+        if (!header) return;
+        var section = header.parentElement;
+        if (!section) return;
+        var content = section.querySelector('.description-content');
+        var btn = header.querySelector('.minimize-btn');
+        var isHidden = content.style.display === 'none';
+
+        // toggle specific visibility only for clicked section
+        content.style.display = isHidden ? '' : 'none';
+        if (btn) btn.textContent = isHidden ? '[-]' : '[+]';
+        section.classList.toggle('minimized', !isHidden);
+    });
+
     return div;
 };
+
 descriptionMenu.addTo(map);
 
-// handle minimize/expand for description panel
-document.addEventListener('click', function(e) {
-    if (e.target.classList.contains('minimize-btn') || (e.target.parentElement && e.target.parentElement.classList.contains('minimize-btn'))) {
-        var panel = document.getElementById('description-panel');
-        panel.classList.toggle('minimized');
-        var btn = panel.querySelector('.minimize-btn');
-        if (btn) {
-            btn.textContent = panel.classList.contains('minimized') ? '[+]' : '[−]';
-        }
-    }
-});
+// END OF SCRIPT //

@@ -4,7 +4,7 @@
     opacity: 4;
 }
 
-/* Create page title style */
+/* create page title style */
 #page-title {
     position: absolute;
     top: 10px;
@@ -15,7 +15,8 @@
     border-radius: 4px;
     font-size: 1.5em;
     font-weight: bold;
-    z-index: 5000;    /* Make sure this is above the map and info-box */
+    box-shadow: 0 20px 30px rgba(0,0,0,0.2);
+    z-index: 5000;    /* make sure this is above the map and description-panel */
 }
 
 #description_toggle {
@@ -32,7 +33,7 @@
     cursor: pointer;  
 }
 
-/* Description Panel Styling */
+/* description panel styling */
 #description-panel {
     background: rgba(255, 255, 255, 0.95) !important;
     padding: 15px !important;
@@ -69,7 +70,9 @@
     margin-left: 10px;
 }
 
-/* Style for the council selector dropdown container */
+.desc-section.minimized .description-content { display: none; }
+
+/* style for the council selector dropdown container */
 .councilSelector {
     background-color: white; 
     padding: 10px;           
@@ -81,6 +84,7 @@
         
 #attendance-stats {
     position: fixed;
+    padding-right: 44px;
     bottom: 20px;
     left: 20px;
     background: white;
@@ -97,12 +101,17 @@
 #attendance-stats h3 {
     margin: 0 0 10px 0;
     font-size: 16px;
-    color: #333;
+    color: #222;
     user-select: none;
 }
 
 #attendance-stats.collapsed {
     padding: 10px 15px;
+}
+
+#attendance-stats.collapsed .toggle-indicator {
+    transform: rotate(180deg);
+    color: #333
 }
 
 #attendance-stats.collapsed .stats-content {

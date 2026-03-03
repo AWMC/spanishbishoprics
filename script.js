@@ -196,8 +196,7 @@ function updateAttendanceStatsBox() {
 
     // update stats box content
     statsBox.innerHTML = `
-        <h3>Record of Attendance: ${councilDisplay}</h3>
-        <span class="toggle-indicator">${indicatorText}</span>
+        <h3>Record of Attendance: ${councilDisplay} <p class="toggle-indicator">${indicatorText}</p> </h3>
         <div class="stats-content">
             <div class="stat-row">
                 <span class="stat-label">Bishops Attended:</span>
@@ -215,6 +214,7 @@ function updateAttendanceStatsBox() {
                 <span class="stat-label">Attendance Rate:</span>
                 <span class="stat-value">${attendancePercent}%</span>
             </div>
+            
         </div>`;
 }
 

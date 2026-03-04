@@ -4,8 +4,34 @@
 var map = L.map('map').setView([40, -5], 6);
  
 //add tile layer from CAWM
-L.tileLayer('https://cawm.lib.uiowa.edu/tiles/{z}/{x}/{y}.png', {}).addTo(map);
- 
+L.tileLayer('https://cawm.lib.uiowa.edu/tiles/{z}/{x}/{y}.png', {
+    maxZoom: 9,
+    maxNativeZoom: 7,
+    minZoom: 3,
+    minNativeZoom: 1,
+    attribution: '&copy; <a href="https://awmc.unc.edu/">Ancient World Mapping Center</a> | &copy; <a href="https://cawm.lib.uiowa.edu/index.html">Consortium of Ancient World Mappers</a>'
+}).addTo(map);
+    map.createPane('labels');
+    map.getPane('labels').style.pointerEvents = 'none';
+    map.getPane('labels').style.zIndex = 650; 
+
+ // LABEL TOGGLE CONTROL //
+let bishopLayer = null;
+let labelLayer = null;
+const LABEL_MIN_ZOOM =6.5;
+
+function updateLabelsForZoom() {
+    if (!labelLayer) return;
+    if (map.getZoom() >= LABEL_MIN_ZOOM) {
+        if (!map.hasLayer(labelLayer)) map.addLayer(labelLayer);
+    } else {
+        if (map.hasLayer(labelLayer)) map.removeLayer(labelLayer);
+    }
+}
+
+// update when zoom changes
+map.on('zoomend', updateLabelsForZoom)
+
 // set starting council to Elvira 306
 var selectedCouncil = 'Elvira_306';
 numBishopsAttended = 0;
@@ -113,6 +139,38 @@ function renderGeoJSON() {
                 }
             }).addTo(map);
             
+            // if label layer already exists, remove it
+            if (labelLayer) map.removeLayer(labelLayer);
+
+            // create new label layer
+            labelLayer = L.layerGroup();
+            raw_data.features.forEach(feature => {
+                if (!feature.geometry || feature.geometry.type !== 'Point') return;
+
+                var [lng, lat] = feature.geometry.coordinates;
+                var latlng = [lat, lng];
+                var labelText = feature.properties.See || feature.properties.Modern_City || "";
+
+                // invisible marker with permenant tooltip as label
+                var m = L.circleMarker(latlng, {
+                    pane: 'labels',
+                    radius: 0,
+                    opacity: 0,
+                    fillOpacity: 0,
+                    interactive: false
+                })
+                .bindTooltip(labelText, {
+                    permanent: true,
+                    direction: 'top',
+                    className: "place-label",
+                    offset: [0, -6]
+                });
+                labelLayer.addLayer(m);
+            })
+
+            // update label visibility based on zoom
+            updateLabelsForZoom();
+
             // COUNT ATTENDANCE STATISTICS //
             for (var i = 0; i < raw_data.features.length; i++) {
                 var feature = raw_data.features[i];
@@ -135,7 +193,6 @@ function renderGeoJSON() {
 // fetch and render
 renderGeoJSON();
 
-
 // FUNCTION TO CLEAR EXISTING LAYERS //
 function clearLayers() {
     map.eachLayer(function (layer) {
@@ -149,7 +206,13 @@ function clearLayers() {
 // COUNCIL SELECTION CONTROL //
 var councilSelectorMenu = L.control({position: 'topright'});
 councilSelectorMenu.onAdd = function (map) {
-    var div = L.DomUtil.create('div', 'custom-control');
+    var div = L.DomUtil.create('div', 'council-selector');
+        div.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+        div.style.padding = '10px';
+        div.style.border = '1px solid #000000';
+        div.style.borderRadius = '4px';
+        div.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+        div.style.font = "Times, serif";
     div.innerHTML = '<h1>Select Council</h1>' +
         '<select id="councilSelector">' +
         '<option value="Elvira_306">Elvira 306</option>' +  
@@ -180,30 +243,32 @@ document.getElementById('councilSelector').addEventListener('change', function(e
 });
 
 
-// ATTENDANCE STATISTICS INFO BOX //
-function updateAttendanceStatsBox() {
-    var statsBox = document.getElementById('attendance-stats');
-    
-    // parse council name for display
-    var councilDisplay = selectedCouncil.replace('_', ' ');
-    
-    // calculate percentages
-    var totalBishops = numBishopsAttended + numBishopsNotAttended;
-    var attendancePercent = totalBishops > 0 ? Math.round((numBishopsAttended / totalBishops) * 100) : 0;
-    
-    // indicator for expand/collapse
-    var indicatorText = (statsBox && statsBox.classList.contains('collapsed')) ? '[+]' : '[−]';
+// INTRO OVERLAY CONTROL //
+document.getElementById('intro-close')?.addEventListener('click', () => {
+    var overlay = document.getElementById('intro-overlay');
+    if (overlay) overlay.style.display = 'none';
+});
 
-    // update stats box content
-    statsBox.innerHTML = `
-        <h3>Record of Attendance: ${councilDisplay} <p class="toggle-indicator">${indicatorText}</p> </h3>
+
+// ATTENDANCE STATISTICS INFO BOX //
+var statsBox = document.getElementById('attendance-stats');
+function updateAttendanceStatsBox() {
+    const statsBox = document.getElementById('attendance-stats');
+    if(!statsBox)       return;
+    const councilDisplay = selectedCouncil.replace('_', ' ');
+    const totalBishops = numBishopsAttended + numBishopsNotAttended;
+    const attendancePercent = totalBishops > 0
+        ? Math.round((numBishopsAttended / totalBishops) * 100)
+        : 0;
+    statsBox.innerHTML= `
+        <h3>Record of Attendance: ${councilDisplay} <h3>
         <div class="stats-content">
             <div class="stat-row">
                 <span class="stat-label">Bishops Attended:</span>
                 <span class="stat-value">${numBishopsAttended}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Bishops Absent:</span>
+                <span class = "stat-label"">Bishops Absent:</span>
                 <span class="stat-value">${numBishopsNotAttended}</span>
             </div>
             <div class="stat-row">
@@ -214,25 +279,9 @@ function updateAttendanceStatsBox() {
                 <span class="stat-label">Attendance Rate:</span>
                 <span class="stat-value">${attendancePercent}%</span>
             </div>
-            
-        </div>`;
+        </div>
+    `;
 }
-
-// stats box starts collapsed on render
-var statsBox = document.getElementById('attendance-stats');
-if (statsBox) statsBox.classList.add('collapsed');
-
-// click handler to toggle expand/collapse on stats box
-document.addEventListener('click', function(e) {
-    var statsBox = document.getElementById('attendance-stats');
-    if (statsBox && statsBox.contains(e.target) && !e.target.classList.contains('stat-label') && !e.target.classList.contains('stat-value')) {
-        statsBox.classList.toggle('collapsed');
-        var indicator = statsBox.querySelector('.toggle-indicator');
-        if (indicator) {
-            indicator.textContent = statsBox.classList.contains('collapsed') ? '[+]' : '[−]';
-        }
-    }
-});
 updateAttendanceStatsBox();
 
 
@@ -324,7 +373,7 @@ descriptionMenu.onAdd = function (map) {
     // prevent map interactions when interacting with the panel
     L.DomEvent.disableClickPropagation(div);
 
-    // toggle individual sectoiuns when header or minimize-btn clicked
+    // toggle individual sectoiuns when header or minimize button clicked
     div.addEventListener('click', function(e) {
         var header = e.target.closest('.desc-header');
         if (!header) return;

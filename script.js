@@ -6,9 +6,8 @@ var map = L.map('map').setView([40, -5], 6);
 //add tile layer from CAWM
 L.tileLayer('https://cawm.lib.uiowa.edu/tiles/{z}/{x}/{y}.png', {
     maxZoom: 9,
-    maxNativeZoom: 7,
+    maxNativeZoom: 9,
     minZoom: 3,
-    minNativeZoom: 1,
     attribution: '&copy; <a href="https://awmc.unc.edu/">Ancient World Mapping Center</a> | &copy; <a href="https://cawm.lib.uiowa.edu/index.html">Consortium of Ancient World Mappers</a>'
 }).addTo(map);
     map.createPane('labels');

@@ -282,7 +282,7 @@ function updateAttendanceStatsBox() {
                 <span class="stat-value">${stats.unknown_signers}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Number of potential bishops:</span>
+                <span class="stat-label">Number of attested sees:</span>
                 <span class="stat-value">${stats.potential_bishops}</span>
             </div>
             <div class="stat-row">

@@ -137,8 +137,7 @@ function renderGeoJSON() {
                         : `<b>${seeName}</b>`;
 
                     var popupContent = 
-                        `${popupTitle}<br></br>
-                        <b>${feature.properties.See || "Unknown Location"}</b><br>
+                        `${popupTitle}<br>
                         Modern City: ${feature.properties.Modern_City || "Unknown"}<br>
                         Province: ${feature.properties.Province || "Unknown"}<br>
                         Bishop Attended: ${bishopAttended || "None"}<br>
@@ -275,11 +274,11 @@ function updateAttendanceStatsBox() {
         <h3>Record of Attendance: ${councilDisplay}</h3>
         <div class="stats-content">
             <div class="stat-row">
-                <span class="stat-label">Total signers:</span>
+                <span class="stat-label">Total signatories:</span>
                 <span class="stat-value">${stats.total_signers}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Unknown signers:</span>
+                <span class="stat-label">Unknown signatories:</span>
                 <span class="stat-value">${stats.unknown_signers}</span>
             </div>
             <div class="stat-row">
@@ -287,7 +286,7 @@ function updateAttendanceStatsBox() {
                 <span class="stat-value">${stats.potential_bishops}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Percent of possible signers:</span>
+                <span class="stat-label">Percent of possible signatories:</span>
                 <span class="stat-value">${percentPossible}%</span>
             </div>
         </div>

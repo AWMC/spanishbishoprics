@@ -107,6 +107,7 @@
     box-shadow: 0 10px 22px rgba(0,0,0,0.3);
 }
 
+/* description panel styling */
 #description_toggle {
     position: absolute;
     top: 11px;
@@ -121,7 +122,6 @@
     cursor: pointer;  
 }
 
-/* description panel styling */
 #description-panel {
     background: rgba(255, 255, 255, 0.95) !important;
     padding: 15px !important;
@@ -160,6 +160,7 @@
 
 .desc-section.minimized .description-content { display: none; }
 
+/* attendance stats styling */
 #attendance-stats {
     position: fixed;
     padding-right: 44px;
@@ -211,3 +212,52 @@
     color: #999;
 }
 
+/* legend styling */
+.map-legend {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 10px 12px;
+    border: 2px solid #333;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    font-family: Times, sans-serif;
+    min-width: 210px;
+}
+
+.map-legend h4 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: #222;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: 13px;
+    color: #333;
+}
+
+.legend-symbol {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    text-align: center;
+    flex: 0 0 18px;
+}
+
+.legend-diamond {
+    color: purple;
+    font-size: 16px;
+}
+
+.legend-circle {
+    width: 10px;
+    height: 10px;
+    border: 1px solid #000;
+    border-radius: 50%;
+    background: orange;
+    opacity: 0.8;
+    display: inline-block;
+}

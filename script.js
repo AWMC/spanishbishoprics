@@ -10,14 +10,16 @@ L.tileLayer('https://cawm.lib.uiowa.edu/tiles/{z}/{x}/{y}.png', {
     minZoom: 3,
     attribution: '&copy; <a href="https://awmc.unc.edu/">Ancient World Mapping Center</a> | &copy; <a href="https://cawm.lib.uiowa.edu/index.html">Consortium of Ancient World Mappers</a>'
 }).addTo(map);
-    map.createPane('labels');
-    map.getPane('labels').style.pointerEvents = 'none';
-    map.getPane('labels').style.zIndex = 650; 
 
- // LABEL TOGGLE CONTROL //
+map.createPane('labels');
+map.getPane('labels').style.pointerEvents = 'none';
+map.getPane('labels').style.zIndex = 650; 
+
+ // GLOBAL LAYERS //
 let bishopLayer = null;
 let labelLayer = null;
-const LABEL_MIN_ZOOM =6.5;
+let councilStats = {};
+const LABEL_MIN_ZOOM = 6.5;
 
 function updateLabelsForZoom() {
     if (!labelLayer) return;
@@ -31,33 +33,33 @@ function updateLabelsForZoom() {
 // update when zoom changes
 map.on('zoomend', updateLabelsForZoom)
 
-// set starting council to Elvira 306
+// default starting council to Elvira 306
 var selectedCouncil = 'Elvira_306';
-numBishopsAttended = 0;
-numBishopsNotAttended = 0;
-
 
 // FUNCTION TO FETCH AND RENDER GEOJSON DATA //
 function renderGeoJSON() {
-    // reset counters
-    numBishopsAttended = 0;
-    numBishopsNotAttended = 0;
-    
     fetch("attendance-geodata.geojson")
         .then(response => {
             if (!response.ok) return;
             return response.json();
         })
         .then(raw_data => {
-            L.geoJSON(raw_data, {
+            // store council summary stats from geojson
+            councilStats = raw_data.council_stats || {};
+
+            // remove existing bishop layer before redrawing
+            if (bishopLayer) {
+                map.removeLayer(bishopLayer);
+            }
+
+            bishopLayer = L.geoJSON(raw_data, {
                 // ADD ATTENDANCE VECTOR STYLES //
                 pointToLayer: function(feature, latlng) {
                     var attendanceProperty = selectedCouncil + " Attendance";
                     var attendance = feature.properties[attendanceProperty];
 
-                // normalize attendance values
                     // marks bishops whose attendance is true
-                    if (attendance == true) {
+                    if (attendance === true) {
                         var diamondIcon = L.divIcon({
                             className: "custom-diamond-icon",
                             html: '<i class="fas fa-diamond" style="color: purple; font-size: 16px;"></i>',
@@ -65,9 +67,9 @@ function renderGeoJSON() {
                             iconAnchor: [10, 10]
                         });
                         return L.marker(latlng, { icon: diamondIcon });
-                    
+
                     // marks bishops whose attendance is false
-                    } else { (attendance == false) 
+                    } else {
                         return L.circleMarker(latlng, {
                             radius: 5,
                             color: "black",
@@ -75,8 +77,9 @@ function renderGeoJSON() {
                             fillOpacity: 0.5,
                             weight: 1
                         });
-                    }   
-                }, 
+                    }
+                },
+
 
                 // ADD POPUP CONTENT //
                 onEachFeature: function(feature, layer) {  
@@ -126,8 +129,16 @@ function renderGeoJSON() {
                     }
 
                     // set popupContent features
+                    var seeName = feature.properties.See || "Unknown Location";
+                    var pleiadesUrl = feature.properties.Pleiades_URL || null;
+
+                    var popupTitle = pleiadesUrl
+                        ? `<a href="${pleiadesUrl}" target="_blank" rel="noopener noreferrer"><b>${seeName}</b></a>`
+                        : `<b>${seeName}</b>`;
+
                     var popupContent = 
-                        `<b>${feature.properties.See || "Unknown Location"}</b><br>
+                        `${popupTitle}<br></br>
+                        <b>${feature.properties.See || "Unknown Location"}</b><br>
                         Modern City: ${feature.properties.Modern_City || "Unknown"}<br>
                         Province: ${feature.properties.Province || "Unknown"}<br>
                         Bishop Attended: ${bishopAttended || "None"}<br>
@@ -169,17 +180,6 @@ function renderGeoJSON() {
 
             // update label visibility based on zoom
             updateLabelsForZoom();
-
-            // COUNT ATTENDANCE STATISTICS //
-            for (var i = 0; i < raw_data.features.length; i++) {
-                var feature = raw_data.features[i];
-                var attendanceProperty = selectedCouncil + " Attendance";
-                if (feature.properties[attendanceProperty] === true) {
-                    numBishopsAttended += 1;
-                } else {
-                    numBishopsNotAttended += 1;
-                }
-            }
             
             // update the stats box
             updateAttendanceStatsBox();
@@ -194,16 +194,20 @@ renderGeoJSON();
 
 // FUNCTION TO CLEAR EXISTING LAYERS //
 function clearLayers() {
-    map.eachLayer(function (layer) {
-        if (layer instanceof L.GeoJSON) {
-            map.removeLayer(layer);
-        }
-    });
-};
+    if (bishopLayer) {
+        map.removeLayer(bishopLayer);
+        bishopLayer = null;
+    }
+
+    if (labelLayer && map.hasLayer(labelLayer)) {
+        map.removeLayer(labelLayer);
+    }
+}
 
 
 // COUNCIL SELECTION CONTROL //
 var councilSelectorMenu = L.control({position: 'topright'});
+
 councilSelectorMenu.onAdd = function (map) {
     var div = L.DomUtil.create('div', 'council-selector');
         div.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
@@ -249,41 +253,71 @@ document.getElementById('intro-close')?.addEventListener('click', () => {
 });
 
 
-// ATTENDANCE STATISTICS INFO BOX //
-var statsBox = document.getElementById('attendance-stats');
+// ATTENDANCE STATISTICS BOX CONTROL //
 function updateAttendanceStatsBox() {
     const statsBox = document.getElementById('attendance-stats');
-    if(!statsBox)       return;
+    if (!statsBox) return;
+
+    const stats = councilStats[selectedCouncil];
     const councilDisplay = selectedCouncil.replace('_', ' ');
-    const totalBishops = numBishopsAttended + numBishopsNotAttended;
-    const attendancePercent = totalBishops > 0
-        ? Math.round((numBishopsAttended / totalBishops) * 100)
-        : 0;
-    statsBox.innerHTML= `
-        <h3>Record of Attendance: ${councilDisplay} <h3>
+
+    if (!stats) {
+        statsBox.innerHTML = `
+            <h3>Record of Attendance: ${councilDisplay}</h3>
+            <div class="stats-content">No council statistics available.</div>
+        `;
+        return;
+    }
+
+    const percentPossible = Math.round((stats.percent_possible_signers || 0) * 1000) / 10;
+
+    statsBox.innerHTML = `
+        <h3>Record of Attendance: ${councilDisplay}</h3>
         <div class="stats-content">
             <div class="stat-row">
-                <span class="stat-label">Bishops Attended:</span>
-                <span class="stat-value">${numBishopsAttended}</span>
+                <span class="stat-label">Total signers:</span>
+                <span class="stat-value">${stats.total_signers}</span>
             </div>
             <div class="stat-row">
-                <span class = "stat-label"">Bishops Absent:</span>
-                <span class="stat-value">${numBishopsNotAttended}</span>
+                <span class="stat-label">Unknown signers:</span>
+                <span class="stat-value">${stats.unknown_signers}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Total Bishoprics:</span>
-                <span class="stat-value">${totalBishops}</span>
+                <span class="stat-label">Number of potential bishops:</span>
+                <span class="stat-value">${stats.potential_bishops}</span>
             </div>
             <div class="stat-row">
-                <span class="stat-label">Attendance Rate:</span>
-                <span class="stat-value">${attendancePercent}%</span>
+                <span class="stat-label">Percent of possible signers:</span>
+                <span class="stat-value">${percentPossible}%</span>
             </div>
         </div>
     `;
 }
 updateAttendanceStatsBox();
 
+// LEGEND CONTROL //
+var legendControl = L.control({position: 'bottomright'});
+legendControl.onAdd = function (map) {
+    var div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = `
+        <h4>Legend</h4>
+        <div class="legend-item">
+            <span class="legend-symbol legend-diamond">
+                <i class="fas fa-diamond"></i>
+            </span>
+            <span>Attended selected council</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-symbol legend-circle"></span>
+            <span>No attendance for selected council</span>
+        </div>
+    `;
+    L.DomEvent.disableClickPropagation(div);
+    return div;
+};
+legendControl.addTo(map);
 
+/*
 // DESCRIPTION PANEL CONTROL //
 var descriptionMenu = L.control({position: 'topleft'});
 var descriptionVisible = false;
@@ -372,7 +406,7 @@ descriptionMenu.onAdd = function (map) {
     // prevent map interactions when interacting with the panel
     L.DomEvent.disableClickPropagation(div);
 
-    // toggle individual sectoiuns when header or minimize button clicked
+    // toggle individual sections when header or minimize button clicked
     div.addEventListener('click', function(e) {
         var header = e.target.closest('.desc-header');
         if (!header) return;
@@ -392,5 +426,6 @@ descriptionMenu.onAdd = function (map) {
 };
 
 descriptionMenu.addTo(map);
+*/
 
 // END OF SCRIPT //

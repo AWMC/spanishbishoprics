@@ -9,16 +9,42 @@
 </head>
 
 <body>
-    <div id="page-title">Bishoprics of Late Antique Spain</div>
+    <div id="page-title">Iberian Church Councils (306-589 CE)</div>
 
-    <div id="descriptionToggle">
-        <button id="description_toggle">Description</button>
+    <div id ="intro-overlay">
+        <div id="intro-modal">
+            <h2>Iberian Church Councils (306-589 CE)</h2>
+            <p> This interactive map allows users to explore episcopal attendance at twelve Church Councils (deliberative meetings of bishops) in Roman and post-Roman Hispania.  The Councils span nearly three centuries, from the Council of Elvira (306 CE) to the Third Council of Toledo (589 CE).
+            </p>
+            <h3>User Guide</h3>
+            <ul>
+                <li>Use the drop-down menu in the upper-right to view attendance data for one of twelve church councils between 306 and 589 CE (listed by location and year).</li>
+                <li>Purple diamonds represent the sees of bishops known to have attended the selected council.</li>
+                <li>Orange circles represent sees in existence by 589 which are not known to have sent a bishop to the selected council.  Note that not all visible sees are known to have existed at the time of earlier councils.</li>
+                <li>Clicking on an icon will bring up further information about that see, including the name of the bishop (if any) who attended the selected council and the earliest year for which a see is attested.</li>
+                <li>The information box in the lower-left lists important statistics for the selected conference, including the total number of signatories, the number of signatories whose see is unknown, and the total number of sees known to have existed by the year of the selected conference.</li>
+            </ul>
+            
+          <p>&copy; Ancient World Mapping Center 2026<br>
+        <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.en" target="_blank">CC-BY-NC 4.0</a><br>
+        <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank">GPL-3.0</a></p>`;
+            </p>
+            <button id="intro-close"><b>Explore Map</b></button>
+        </div>
     </div>
+
+<!--    
+    <div id="descriptionToggle">
+        <button id="description_toggle">Map Information</button>
+    </div>
+-->
+
+    <div id="attendance-stats">Record of Attendance</div>
    
     <div id="map"></div>
 
     <style type="text/css">
-        #map{height:925px;}
+        #map{width:100%; height:100%;}
     </style>
 
     <script src="script.js"></script>

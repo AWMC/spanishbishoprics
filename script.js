@@ -308,7 +308,7 @@ legendControl.onAdd = function (map) {
         </div>
         <div class="legend-item">
             <span class="legend-symbol legend-circle"></span>
-            <span>No attendance for selected council</span>
+            <span>No recorded attendance for selected council</span>
         </div>
     `;
     L.DomEvent.disableClickPropagation(div);

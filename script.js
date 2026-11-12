@@ -38,7 +38,7 @@ var selectedCouncil = 'Elvira_306';
 
 // FUNCTION TO FETCH AND RENDER GEOJSON DATA //
 function renderGeoJSON() {
-    fetch("attendance-geodata.geojson")
+    fetch("attestations.geojson")
         .then(response => {
             if (!response.ok) return;
             return response.json();
@@ -426,5 +426,8 @@ descriptionMenu.onAdd = function (map) {
 
 descriptionMenu.addTo(map);
 */
+
+
+
 
 // END OF SCRIPT //

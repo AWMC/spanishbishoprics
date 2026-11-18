@@ -425,8 +425,8 @@ descriptionMenu.onAdd = function (map) {
 };
 
 descriptionMenu.addTo(map);
-*/
 
+*/
 
 
 

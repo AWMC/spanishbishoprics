@@ -261,3 +261,9 @@
     opacity: 0.8;
     display: inline-block;
 }
+
+.custom-diamond-icon { position: relative; }
+.att-count { position: absolute; top: -6px; right: -8px; font: bold 10px Arial, sans-serif;
+             background: #fff; border: 1px solid #5b3a8a; border-radius: 8px; padding: 0 3px; }
+.att-list { padding-left: 16px; margin: 4px 0; }
+.raw-cell { font-size: 11px; font-style: italic; color: #666; }
